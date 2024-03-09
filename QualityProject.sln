@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QualityProject", "QualityProject\QualityProject.csproj", "{2980744A-96EC-451C-A7A7-57A936470045}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2980744A-96EC-451C-A7A7-57A936470045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2980744A-96EC-451C-A7A7-57A936470045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2980744A-96EC-451C-A7A7-57A936470045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2980744A-96EC-451C-A7A7-57A936470045}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

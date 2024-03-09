@@ -1,0 +1,6 @@
+@QualityProject_HostAddress = http://localhost:5198
+
+GET {{QualityProject_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
