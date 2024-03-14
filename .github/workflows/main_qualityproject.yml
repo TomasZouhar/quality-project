@@ -51,8 +51,7 @@ jobs:
 
       - name: Apply EF Core migrations
         run: |
-          cd ${{ env.DOTNET_ROOT }}/myapp
-          dotnet ef database update --context YourDbContextName
+          dotnet ef database update
       
       - name: Login to Azure
         uses: azure/login@v1
