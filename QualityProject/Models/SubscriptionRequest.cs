@@ -2,9 +2,10 @@
 
 namespace QualityProject.Models
 {
-    public class SubscriptionModel : BaseModel
+    public class SubscriptionRequest
     {
         [Required]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         public string EmailAddress { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QualityProject;
+using QualityProject.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,42 @@ app.MapGet("/weatherforecast", () =>
     .WithName("GetWeatherForecast")
     .WithOpenApi();
 
+app.MapPost("/subscribe", async (SubscriptionRequest request, AppDbContext dbContext, HttpContext httpContext) =>
+{
+    var existingEmailSubscription = await dbContext.Subscriptions
+                                               .AnyAsync(s => s.EmailAddress == request.EmailAddress);
+    if (existingEmailSubscription)
+    {
+        return Results.Conflict("This email address is already subscribed.");
+    }
+
+    var subscription = new Subscription { EmailAddress = request.EmailAddress };
+
+    try
+    {
+        dbContext.Subscriptions.Add(subscription);
+        await dbContext.SaveChangesAsync();
+        return Results.Created($"/subscribe/{subscription.Id}", subscription);
+    }
+    catch (DbUpdateException ex)
+    {
+        return Results.Problem(detail: ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+    }
+})
+    .WithName("AddSubscription")
+    .WithOpenApi();
+
+app.MapGet("/subscriptions", async (AppDbContext dbContext) =>
+{
+    var subscriptions = await dbContext.Subscriptions.ToListAsync();
+    return Results.Ok(subscriptions);
+})
+    .WithName("GetSubscriptions")
+    .WithOpenApi();
+
 app.Run();
+
+
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
