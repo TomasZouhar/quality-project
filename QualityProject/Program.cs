@@ -14,7 +14,7 @@ builder.Services.AddSwaggerGen();
 if (builder.Environment.IsProduction())
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")));
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 else
 {
