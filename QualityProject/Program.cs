@@ -11,9 +11,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // configure dbcontext
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 var app = builder.Build();
 
