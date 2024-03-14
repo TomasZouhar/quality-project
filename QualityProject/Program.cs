@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QualityProject;
+using QualityProject.Controller;
 using QualityProject.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,6 +75,20 @@ app.MapGet("/subscriptions", async (AppDbContext dbContext) =>
     return Results.Ok(subscriptions);
 })
     .WithName("GetSubscriptions")
+    .WithOpenApi();
+
+app.MapPost("/sendSubscription", async (AppDbContext dbContext) =>
+    {
+        var subscriptions = await dbContext.Subscriptions.ToListAsync();
+
+        foreach (var subscription in subscriptions)
+        {
+            EmailController.SendEmail(subscription.EmailAddress);
+        }
+    
+        return Results.Ok(subscriptions);
+    })
+    .WithName("SendSubscription")
     .WithOpenApi();
 
 app.Run();
