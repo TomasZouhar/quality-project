@@ -6,7 +6,7 @@ namespace QualityProject.Controller
 {
     public static class EmailController
     {
-        public static bool SendEmail(IConfiguration configuration, string address)
+        public static bool SendEmail(IConfiguration configuration, string address, String changes)
         {
             var smtpSettings = configuration.GetSection("SMTP");
             var host = smtpSettings["Host"];
@@ -35,9 +35,15 @@ namespace QualityProject.Controller
             {
                 From = new MailAddress(from),
                 Subject = "[QP] Changes in our holdings!",
-                Body = @"
+                Body = @$"
                    Hello, there are new stock changes in our holdings!
-                   Second Line.
+
+                   {changes}
+
+                   Best regards,
+                   Quality Project Team
+                   
+                   Date: {DateTime.Now.ToShortDateString()}
                    "
             };
             mailMessage.To.Add(address);

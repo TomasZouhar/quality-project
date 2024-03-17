@@ -36,6 +36,16 @@ namespace QualityProject.Services
             var result = FormatHoldingsTable(subtractedHoldings);
             return Task.FromResult(result.ToString());
         }
+        
+        private static Task<string> CompareReducedFilesStringAsync(string fileContent1, string fileContent2)
+        {
+            var oldHoldings = ParseCsvString(fileContent1).OrderBy(h => h.Company).ToList();
+            var newHoldings = ParseCsvString(fileContent2).OrderBy(h => h.Company).ToList();
+            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => oldHolding - newHolding).ToList();
+            subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
+            var result = FormatReducedHoldingsTable(subtractedHoldings);
+            return Task.FromResult(result.ToString());
+        }
 
         private static StringBuilder FormatHoldingsTable(List<Holding> subtractedHoldings)
         {
@@ -44,6 +54,18 @@ namespace QualityProject.Services
             foreach (var holding in subtractedHoldings)
             {
                 result.AppendLine(holding.ToString());
+            }
+
+            return result;
+        }
+        
+        private static StringBuilder FormatReducedHoldingsTable(List<Holding> subtractedHoldings)
+        {
+            var result = new StringBuilder();
+            result.Append($"{nameof(Holding.Ticker)} | {nameof(Holding.Shares)}\n");
+            foreach (var holding in subtractedHoldings)
+            {
+                result.AppendLine($"{holding.Ticker} | {holding.Shares}");
             }
 
             return result;
@@ -89,6 +111,13 @@ namespace QualityProject.Services
         {
             var downloadedFileContent = await DownloadFileAsync();
             var diffHtml = await CompareFilesStringAsync(TestFileCsv, downloadedFileContent);
+            return diffHtml;
+        }
+        
+        public async Task<string> CompareFileReducedAsync()
+        {
+            var downloadedFileContent = await DownloadFileAsync();
+            var diffHtml = await CompareReducedFilesStringAsync(TestFileCsv, downloadedFileContent);
             return diffHtml;
         }
     }

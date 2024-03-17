@@ -3,5 +3,7 @@
 public interface IFileService
 { 
     Task<string> CompareFileAsync();
+    
+    Task<string> CompareFileReducedAsync();
 
 }
