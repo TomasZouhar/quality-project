@@ -31,7 +31,7 @@ namespace QualityProject.Services
         {
             var oldHoldings = ParseCsvString(fileContent1).OrderBy(h => h.Company).ToList();
             var newHoldings = ParseCsvString(fileContent2).OrderBy(h => h.Company).ToList();
-            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => oldHolding - newHolding).ToList();
+            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => newHolding - oldHolding).ToList();
             subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
             var result = FormatHoldingsTable(subtractedHoldings);
             return Task.FromResult(result.ToString());
@@ -41,7 +41,7 @@ namespace QualityProject.Services
         {
             var oldHoldings = ParseCsvString(fileContent1).OrderBy(h => h.Company).ToList();
             var newHoldings = ParseCsvString(fileContent2).OrderBy(h => h.Company).ToList();
-            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => oldHolding - newHolding).ToList();
+            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => newHolding - oldHolding).ToList();
             subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
             var result = FormatReducedHoldingsTable(subtractedHoldings);
             return Task.FromResult(result.ToString());
