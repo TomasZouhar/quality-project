@@ -36,10 +36,7 @@ app.MapGet("/File/CompareFiles", async (IFileService fileService) =>
     return Results.Content(result, "text/plain");
 });
 
-
-
-
-app.MapPost("/subscribe", async (SubscriptionRequest request, AppDbContext dbContext, HttpContext httpContext) =>
+app.MapPost("/subscription", async (SubscriptionRequest request, AppDbContext dbContext, HttpContext httpContext) =>
 {
     var existingEmailSubscription = await dbContext.Subscriptions
                                                .AnyAsync(s => s.EmailAddress == request.EmailAddress);
@@ -64,7 +61,7 @@ app.MapPost("/subscribe", async (SubscriptionRequest request, AppDbContext dbCon
     .WithName("AddSubscription")
     .WithOpenApi();
 
-app.MapGet("/subscriptions", async (AppDbContext dbContext) =>
+app.MapGet("/subscription", async (AppDbContext dbContext) =>
 {
     var subscriptions = await dbContext.Subscriptions.ToListAsync();
     return Results.Ok(subscriptions);
@@ -72,13 +69,14 @@ app.MapGet("/subscriptions", async (AppDbContext dbContext) =>
     .WithName("GetSubscriptions")
     .WithOpenApi();
 
-app.MapPost("/sendSubscription", async (AppDbContext dbContext) =>
+app.MapPost("/subscription/send", async (IConfiguration configuration, AppDbContext dbContext) =>
     {
+        var smtpSettings = configuration;
         var subscriptions = await dbContext.Subscriptions.ToListAsync();
 
         foreach (var subscription in subscriptions)
         {
-            EmailController.SendEmail(subscription.EmailAddress);
+            EmailController.SendEmail(smtpSettings, subscription.EmailAddress);
         }
     
         return Results.Ok(subscriptions);

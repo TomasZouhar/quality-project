@@ -1,39 +1,56 @@
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
 
-namespace QualityProject.Controller;
-
-public static class EmailController
+namespace QualityProject.Controller
 {
-    public static bool SendEmail(String address)
+    public static class EmailController
     {
-        // Send email via SMTP
-        var smtpClient = new SmtpClient("smtp.endora.cz")
+        public static bool SendEmail(IConfiguration configuration, string address)
         {
-            Port = 587,
-            Credentials = new NetworkCredential("info@tomaszouhar.cz", "HesloHeslo123"),
-            EnableSsl = true,
-        };
-        
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress("quality@project.cz"),
-            Subject = "[QP] New Stock Difference",
-            Body = """
-                   Hello, there are new stock changes in our company!
+            var smtpSettings = configuration.GetSection("SMTP");
+            var host = smtpSettings["Host"];
+            var port = int.Parse(smtpSettings["Port"]);
+            var username = smtpSettings["Username"];
+            var password = smtpSettings["Password"];
+            var from = smtpSettings["From"];
+            
+            if (string.IsNullOrEmpty(host) ||
+                port == 0 ||
+                string.IsNullOrEmpty(username)||
+                string.IsNullOrEmpty(password) ||
+                string.IsNullOrEmpty(from))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var smtpClient = new SmtpClient(host)
+            {
+                Port = port,
+                Credentials = new NetworkCredential(username, password),
+                EnableSsl = true,
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(from),
+                Subject = "[QP] Changes in our holdings!",
+                Body = @"
+                   Hello, there are new stock changes in our holdings!
                    Second Line.
-                   """
-        };
-        mailMessage.To.Add(address);
-        
-        try
-        {
-            smtpClient.Send(mailMessage);
-            return true;
-        }
-        catch
-        {
-            return false;
+                   "
+            };
+            mailMessage.To.Add(address);
+
+            try
+            {
+                smtpClient.Send(mailMessage);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
