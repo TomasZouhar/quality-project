@@ -52,6 +52,51 @@ public static class Startup
         })
             .WithName("AddSubscription")
             .WithOpenApi();
+        
+        app.MapDelete("/subscription/removeByEmail", async (string emailAddress, AppDbContext dbContext, HttpContext httpContext) =>
+            {
+                var subscription = await dbContext.Subscriptions.FirstOrDefaultAsync(s => s.EmailAddress == emailAddress);
+                if (subscription == null)
+                {
+                    return Results.NotFound("Subscription not found.");
+                }
+
+                try
+                {
+                    dbContext.Subscriptions.Remove(subscription);
+                    await dbContext.SaveChangesAsync();
+                    return Results.Ok("Subscription removed successfully.");
+                }
+                catch (DbUpdateException ex)
+                {
+                    return Results.Problem(detail: ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+                }
+            })
+            .WithName("RemoveSubscriptionByEmail")
+            .WithOpenApi();
+        
+        app.MapDelete("/subscription/removeById", async (long id, AppDbContext dbContext, HttpContext httpContext) =>
+            {
+                var subscription = await dbContext.Subscriptions.FirstOrDefaultAsync(s => s.Id == id);
+                if (subscription == null)
+                {
+                    return Results.NotFound("Subscription not found.");
+                }
+
+                try
+                {
+                    dbContext.Subscriptions.Remove(subscription);
+                    await dbContext.SaveChangesAsync();
+                    return Results.Ok("Subscription removed successfully.");
+                }
+                catch (DbUpdateException ex)
+                {
+                    return Results.Problem(detail: ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+                }
+            })
+            .WithName("RemoveSubscriptionByID")
+            .WithOpenApi();
+
 
         app.MapGet("/subscription", async (AppDbContext dbContext) =>
         {
