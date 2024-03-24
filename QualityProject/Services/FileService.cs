@@ -46,6 +46,16 @@ namespace QualityProject.Services
             var result = FormatReducedHoldingsTable(subtractedHoldings);
             return Task.FromResult(result.ToString());
         }
+        
+        private static Task<string> CompareFilesAndConvertHTMLAsync(string fileContent1, string fileContent2)
+        {
+            var oldHoldings = ParseCsvString(fileContent1).OrderBy(h => h.Company).ToList();
+            var newHoldings = ParseCsvString(fileContent2).OrderBy(h => h.Company).ToList();
+            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => newHolding - oldHolding).ToList();
+            subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
+            var result = FormatHTMLHoldingsTable(subtractedHoldings);
+            return Task.FromResult(result.ToString());
+        }
 
         private static StringBuilder FormatHoldingsTable(List<Holding> subtractedHoldings)
         {
@@ -70,6 +80,33 @@ namespace QualityProject.Services
 
             return result;
         }
+        
+        private static string FormatHTMLHoldingsTable(List<Holding> subtractedHoldings)
+        {
+            var result = new StringBuilder();
+            result.Append("<table>");
+            result.Append("<thead>");
+            result.Append("<tr>");
+            result.Append("<th>Ticker</th>");
+            result.Append("<th>Shares</th>");
+            result.Append("</tr>");
+            result.Append("</thead>");
+            result.Append("<tbody>");
+    
+            foreach (var holding in subtractedHoldings)
+            {
+                result.Append("<tr>");
+                result.Append($"<td>{holding.Ticker}</td>");
+                result.Append($"<td>{holding.Shares}</td>");
+                result.Append("</tr>");
+            }
+    
+            result.Append("</tbody>");
+            result.Append("</table>");
+
+            return result.ToString();
+        }
+
 
         private static List<Holding> ParseCsvString(string csvData)
         {
@@ -118,6 +155,13 @@ namespace QualityProject.Services
         {
             var downloadedFileContent = await DownloadFileAsync();
             var diffHtml = await CompareReducedFilesStringAsync(TestFileCsv, downloadedFileContent);
+            return diffHtml;
+        }
+        
+        public async Task<string> CompareFileHTMLAsync()
+        {
+            var downloadedFileContent = await DownloadFileAsync();
+            var diffHtml = await CompareFilesAndConvertHTMLAsync(TestFileCsv, downloadedFileContent);
             return diffHtml;
         }
     }

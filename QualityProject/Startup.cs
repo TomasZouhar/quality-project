@@ -67,7 +67,9 @@ public static class Startup
                 var smtpSettings = configuration;
                 var subscriptions = await dbContext.Subscriptions.ToListAsync();
                 
-                var resulBody = await fileService.CompareFileReducedAsync();
+                var resulBody = await fileService.CompareFileHTMLAsync();
+                
+                Console.WriteLine(resulBody);
 
                 var sentEmails = 0;
 
