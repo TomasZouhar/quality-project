@@ -4,7 +4,7 @@ using QualityProject.DAL;
 using QualityProject.DAL.Models;
 using QualityProject.BL.Services;
 
-namespace QualityProject.API;
+namespace QualityProject;
 
 public static class Startup
 {
@@ -22,7 +22,11 @@ public static class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/File/CompareFiles", async (IFileService fileService) => await FileHandler.CompareFiles(fileService))
+        app.MapGet("/File/CompareFiles", async (IFileService fileService) =>
+            {
+                var result = await fileService.CompareFileAsync();
+                return Results.Content(result, "text/plain");
+            })
             .RequireAuthorization("Admin");
 
         app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
