@@ -1,0 +1,32 @@
+﻿@model IEnumerable<QualityProject.DAL.Models.Subscription>
+@Html.Partial("_Alerts")
+
+
+@{
+    ViewData["Title"] = "Active subscriptions";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subscription in Model)
+        {
+            <tr>
+                <td>@subscription.EmailAddress</td>
+                <td>
+                    <form asp-action="RemoveSubscription" asp-route-email="@subscription.EmailAddress" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Unsubscribe</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
