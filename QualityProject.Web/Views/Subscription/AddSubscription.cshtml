@@ -1,0 +1,17 @@
+﻿@model QualityProject.Web.Models.Subscription.SubscriptionViewModel
+@Html.Partial("_Alerts")
+
+@{
+    ViewData["Title"] = "Add subscription";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="AddSubscription" method="post">
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block mt-5">Subscribe</button>
+</form>

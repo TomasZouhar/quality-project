@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using QualityProject.Controller;
-using QualityProject.Models;
-using QualityProject.Services;
+using QualityProject.DAL;
+using QualityProject.DAL.Models;
+using QualityProject.BL.Services;
 
-namespace QualityProject;
+namespace QualityProject.API;
 
 public static class Startup
 {
@@ -28,46 +29,34 @@ public static class Startup
             })
             .RequireAuthorization("Admin");
 
-        app.MapPost("/subscription", async (SubscriptionRequest request, AppDbContext dbContext, HttpContext httpContext) =>
+        app.MapPost("/subscription", async (SubscriptionRequest request, SubscriptionService subscriptionService, HttpContext httpContext) =>
         {
-            var existingEmailSubscription = await dbContext.Subscriptions
-                                                       .AnyAsync(s => s.EmailAddress == request.EmailAddress);
-            if (existingEmailSubscription)
+            var result = await subscriptionService.AddSubscriptionAsync(request.EmailAddress);
+            if (!result)
             {
                 return Results.Conflict("This email address is already subscribed.");
             }
-
-            var subscription = new Subscription { EmailAddress = request.EmailAddress };
-
-            try
-            {
-                dbContext.Subscriptions.Add(subscription);
-                await dbContext.SaveChangesAsync();
-                return Results.Created($"/subscribe/{subscription.Id}", subscription);
-            }
-            catch (DbUpdateException ex)
-            {
-                return Results.Problem(detail: ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-            }
+            var subscription = await subscriptionService.GetSubscriptionByEmailAsync(request.EmailAddress);
+            return Results.Created($"/subscribe/{subscription.Id}", subscription);
         })
             .WithName("AddSubscription")
             .WithOpenApi();
 
-        app.MapGet("/subscription", async (AppDbContext dbContext) =>
+        app.MapGet("/subscription", async (SubscriptionService subscriptionService) =>
         {
-            var subscriptions = await dbContext.Subscriptions.ToListAsync();
+            var subscriptions = await subscriptionService.GetAllSubscriptionsAsync();
             return Results.Ok(subscriptions);
         })
             .RequireAuthorization("Admin")
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, AppDbContext dbContext, IFileService fileService) =>
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, IFileService fileService) =>
             {
                 var smtpSettings = configuration;
-                var subscriptions = await dbContext.Subscriptions.ToListAsync();
-                
-                var resulBody = await fileService.CompareFileReducedAsync();
+                var subscriptions = await subscriptionService.GetAllSubscriptionsAsync();
+
+                var resulBody = await fileService.CompareFileHTMLAsync();
 
                 var sentEmails = 0;
 
@@ -80,7 +69,7 @@ public static class Startup
                     }
                 }
 
-                if (sentEmails == subscriptions.Count)
+                if (sentEmails == subscriptions.Count())
                 {
                     return Results.Ok();
                 }
