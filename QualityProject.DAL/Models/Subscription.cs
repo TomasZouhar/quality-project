@@ -5,6 +5,7 @@ namespace QualityProject.DAL.Models
     public class Subscription : BaseModel
     {
         [Required]
-        public string EmailAddress { get; set; }
+        [MaxLength(63)]
+        public required string EmailAddress { get; set; }
     }
 }

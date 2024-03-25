@@ -6,6 +6,6 @@ namespace QualityProject.DAL.Models
     {
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string EmailAddress { get; set; }
+        public required string EmailAddress { get; set; }
     }
 }

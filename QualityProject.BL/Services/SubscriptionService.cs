@@ -1,12 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using QualityProject.DAL;
 using QualityProject.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace QualityProject.BL.Services
 {
@@ -52,7 +47,7 @@ namespace QualityProject.BL.Services
             return await _dbContext.Subscriptions.ToListAsync();
         }
 
-        public async Task<Subscription> GetSubscriptionByEmailAsync(string emailAddress) => await _dbContext.Subscriptions
-                                   .FirstOrDefaultAsync(s => s.EmailAddress == emailAddress);
+        public async Task<Subscription> GetSubscriptionByEmailAsync(string emailAddress) => (await _dbContext.Subscriptions
+            .FirstOrDefaultAsync(s => s.EmailAddress == emailAddress))!;
     }
 }

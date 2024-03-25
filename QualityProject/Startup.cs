@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using QualityProject.Controller;
+using QualityProject.API.Handlers;
 using QualityProject.DAL;
 using QualityProject.DAL.Models;
 using QualityProject.BL.Services;
 
-namespace QualityProject.API;
+namespace QualityProject;
 
 public static class Startup
 {
@@ -29,53 +29,24 @@ public static class Startup
             })
             .RequireAuthorization("Admin");
 
-        app.MapPost("/subscription", async (SubscriptionRequest request, SubscriptionService subscriptionService, HttpContext httpContext) =>
-        {
-            var result = await subscriptionService.AddSubscriptionAsync(request.EmailAddress);
-            if (!result)
-            {
-                return Results.Conflict("This email address is already subscribed.");
-            }
-            var subscription = await subscriptionService.GetSubscriptionByEmailAsync(request.EmailAddress);
-            return Results.Created($"/subscribe/{subscription.Id}", subscription);
-        })
+        app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
+                await SubscriptionHandler.RemoveSubscriptionAsync(email, subscriptionService))
+            .WithName("RemoveSubscription")
+            .WithOpenApi();
+
+        app.MapPost("/subscription", async (SubscriptionRequest request, SubscriptionService subscriptionService) =>
+                await SubscriptionHandler.AddSubscriptionAsync(request, subscriptionService))
             .WithName("AddSubscription")
             .WithOpenApi();
 
         app.MapGet("/subscription", async (SubscriptionService subscriptionService) =>
-        {
-            var subscriptions = await subscriptionService.GetAllSubscriptionsAsync();
-            return Results.Ok(subscriptions);
-        })
+                await SubscriptionHandler.GetAllSubscriptionAsync(subscriptionService))
             .RequireAuthorization("Admin")
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, IFileService fileService) =>
-            {
-                var smtpSettings = configuration;
-                var subscriptions = await subscriptionService.GetAllSubscriptionsAsync();
-
-                var resulBody = await fileService.CompareFileHTMLAsync();
-
-                var sentEmails = 0;
-
-                foreach (var subscription in subscriptions)
-                {
-                    var sent = EmailController.SendEmail(smtpSettings, subscription.EmailAddress, resulBody);
-                    if (sent)
-                    {
-                        sentEmails++;
-                    }
-                }
-
-                if (sentEmails == subscriptions.Count())
-                {
-                    return Results.Ok();
-                }
-                
-                return Results.Problem("Some emails were not sent", statusCode: StatusCodes.Status500InternalServerError);
-            })
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, IFileService fileService) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, fileService))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();

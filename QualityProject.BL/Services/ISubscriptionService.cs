@@ -1,6 +1,4 @@
 ﻿using QualityProject.DAL.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace QualityProject.BL.Services
 {

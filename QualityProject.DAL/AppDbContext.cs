@@ -1,7 +1,7 @@
 ﻿namespace QualityProject.DAL
 {
     using Microsoft.EntityFrameworkCore;
-    using QualityProject.DAL.Models;
+    using Models;
 
     public class AppDbContext : DbContext
     {
