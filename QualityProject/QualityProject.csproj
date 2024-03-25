@@ -18,8 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\QualityProject.BL\QualityProject.BL.csproj" />
-      <ProjectReference Include="..\QualityProject.DAL\QualityProject.DAL.csproj" />
+      <Folder Include="Migrations\" />
     </ItemGroup>
 
 </Project>

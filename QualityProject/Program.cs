@@ -1,10 +1,9 @@
-using QualityProject.BL.Services;
+using QualityProject.Services;
 using Microsoft.EntityFrameworkCore;
-using QualityProject.DAL;
-using QualityProject.API;
+using QualityProject;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication;
-using QualityProject.API.Swagger;
+using QualityProject.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,11 +47,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddScoped<IFileService, FileService>();
-builder.Services.AddScoped<SubscriptionService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly("QualityProject.DAL")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 Startup.Run(app);

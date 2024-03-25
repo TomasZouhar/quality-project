@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace QualityProject.DAL.Models
+namespace QualityProject.Models
 {
     public class BaseModel
     {

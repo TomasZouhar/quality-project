@@ -1,4 +1,4 @@
-﻿namespace QualityProject.BL.Services;
+﻿namespace QualityProject.Services;
 
 public interface IFileService
 { 
