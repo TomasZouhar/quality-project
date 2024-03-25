@@ -1,19 +1,17 @@
-﻿namespace QualityProject.DAL.Models;
+﻿namespace QualityProject.Model;
 
 public class Holding
 {
-
-
     public DateTime Date { get; set; }
-    public required string Fund { get; set; }
-    public required string Company { get; set; }
-    public required string Ticker { get; set; }
-    public required string Cusip { get; set; }
+    public string Fund { get; set; }
+    public string Company { get; set; }
+    public string Ticker { get; set; }
+    public string Cusip { get; set; }
     public int Shares { get; set; }
     public decimal MarketValueUsd { get; set; }
     public decimal WeightPercentage { get; set; }
 
-    
+
     public static Holding operator -(Holding newHolding, Holding oldHolding)
     {
         return new Holding

@@ -1,9 +1,15 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.VisualBasic.FileIO;
-using QualityProject.DAL.Models;
+using QualityProject.Model;
 
-namespace QualityProject.BL.Services
+namespace QualityProject.Services
 {
     public class FileService : IFileService
     {
@@ -12,8 +18,8 @@ namespace QualityProject.BL.Services
         private static async Task<string> DownloadFileAsync()
         {
             using var httpClient = new HttpClient();
-            const string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+            var UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
             const string url = "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKK_HOLDINGS.csv";
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -80,7 +86,7 @@ namespace QualityProject.BL.Services
             {
                 var fields = parser.ReadFields();
 
-                if (fields!.Length < 8)
+                if (fields.Length < 8)
                     continue;
 
                 var holding = new Holding

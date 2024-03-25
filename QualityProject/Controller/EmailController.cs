@@ -1,7 +1,8 @@
 using System.Net;
 using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
 
-namespace QualityProject.API.Controller
+namespace QualityProject.Controller
 {
     public static class EmailController
     {
@@ -9,7 +10,7 @@ namespace QualityProject.API.Controller
         {
             var smtpSettings = configuration.GetSection("SMTP");
             var host = smtpSettings["Host"];
-            var port = int.Parse(smtpSettings["Port"]!);
+            var port = int.Parse(smtpSettings["Port"]);
             var username = smtpSettings["Username"];
             var password = smtpSettings["Password"];
             var from = smtpSettings["From"];
