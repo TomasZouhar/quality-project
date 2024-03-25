@@ -1,9 +1,9 @@
 using QualityProject.BL.Services;
 using Microsoft.EntityFrameworkCore;
 using QualityProject.DAL;
-using QualityProject.API;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication;
+using QualityProject;
 using QualityProject.API.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
