@@ -28,12 +28,12 @@ public static class SubscriptionHandler
         return result ? Results.Created($"/subscribe/{subscription.Id}", subscription) : Results.Conflict("This email address is already subscribed.");
     }
 
-    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, IFileService fileService)
+    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs)
     {
         var subscriptions = (await subscriptionService.GetAllSubscriptionsAsync()).ToList();
         
         
-        var resultBody = await fileService.CompareFileReducedAsync();
+        var resultBody = await cs.CompareFileReducedAsync();
         
         var sentEmails = subscriptions.Select(subscription => EmailController.SendEmail(smtpConfiguration, subscription.EmailAddress, resultBody)).Count(sent => sent);
 

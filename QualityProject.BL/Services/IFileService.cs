@@ -1,11 +1,6 @@
-﻿namespace QualityProject.BL.Services;
+namespace QualityProject.BL.Services;
 
 public interface IFileService
-{ 
-    Task<string> CompareFileAsync();
-    
-    Task<string> CompareFileReducedAsync();
-    
-    Task<string> CompareFileHTMLAsync();
-
+{
+    string GetFileFromDisk(string path);
 }

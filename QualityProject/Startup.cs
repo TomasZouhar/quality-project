@@ -22,9 +22,9 @@ public static class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/File/CompareFiles", async (IFileService fileService) =>
+        app.MapGet("/File/CompareFiles", async (ICompareService cs) =>
             {
-                var result = await fileService.CompareFileAsync();
+                var result = await cs.CompareFileAsync();
                 return Results.Content(result, "text/plain");
             })
             .RequireAuthorization("Admin");
@@ -45,8 +45,8 @@ public static class Startup
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, IFileService fileService) 
-                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, fileService))
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
