@@ -6,6 +6,15 @@ namespace QualityProject.API.Controller
 {
     public static class EmailController
     {
+        /// <summary>
+        /// Send email using SMTP client to the specified address
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="address"></param>
+        /// <param name="changes"></param>
+        /// <param name="smtpClient"></param>
+        /// <returns>True if email is sent, else false</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static bool SendEmail(IConfiguration configuration, string address, String changes, ISmtpClient smtpClient)
         {
             var smtpSettings = configuration.GetSection("SMTP");
