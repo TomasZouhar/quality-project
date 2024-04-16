@@ -2,9 +2,9 @@ namespace QualityProject.BL.Services;
 
 public interface ICompareService
 {
-    Task<string> CompareFileAsync();
+    Task<string> CompareFileAsync(string referenceFileContent);
     
-    Task<string> CompareFileReducedAsync();
+    Task<string> CompareFileReducedAsync(string referenceFileContent);
     
-    Task<string> CompareFileHTMLAsync();
+    Task<string> CompareFileHtmlAsync(string referenceFileContent);
 }
