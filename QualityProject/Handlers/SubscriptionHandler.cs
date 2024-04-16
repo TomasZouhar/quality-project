@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Net.Mail;
-using QualityProject.API.Controller;
+﻿using QualityProject.API.Controller;
 using QualityProject.BL.Services;
 using QualityProject.DAL.Models;
 
@@ -40,7 +38,7 @@ public static class SubscriptionHandler
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
         
-        var resultBody = await cs.CompareFileHtmlAsync(fileService.GetFileFromDisk("/referenceFile"));
+        var resultBody = await cs.CompareFileHtmlAsync(fileService.GetFileFromDisk("referenceFile.csv"));
         
         if (string.IsNullOrEmpty(host) ||
             port == 0 ||

@@ -22,10 +22,10 @@ public static class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/File/CompareFiles", async (ICompareService cs, IFileService fileService) =>
-            {
-                await FileHandler.CompareFiles(cs, fileService);
-            })
+        app.MapGet("/File/CompareFiles", async (ICompareService cs, IFileService fileService) => 
+                await FileHandler.CompareFiles(cs, fileService))
+            .WithName("CompareFiles")
+            .WithOpenApi()
             .RequireAuthorization("Admin");
 
         app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
