@@ -47,6 +47,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddHttpClient<IDownloadService, DownloadService>();
 builder.Services.AddScoped<ICompareService, CompareService>();
 builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.AddScoped<IFormatService, FormatService>();
