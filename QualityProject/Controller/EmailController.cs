@@ -1,34 +1,33 @@
 using System.Net;
 using System.Net.Mail;
+using QualityProject.BL.Services;
 
 namespace QualityProject.API.Controller
 {
     public static class EmailController
     {
-        public static bool SendEmail(IConfiguration configuration, string address, String changes)
+        /// <summary>
+        /// Send email using SMTP client to the specified address
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="address"></param>
+        /// <param name="changes"></param>
+        /// <param name="smtpClient"></param>
+        /// <returns>True if email is sent, else false</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool SendEmail(IConfiguration configuration, string address, String changes, ISmtpClient smtpClient)
         {
             var smtpSettings = configuration.GetSection("SMTP");
-            var host = smtpSettings["Host"];
-            var port = int.Parse(smtpSettings["Port"]!);
-            var username = smtpSettings["Username"];
-            var password = smtpSettings["Password"];
-            var from = smtpSettings["From"];
-    
-            if (string.IsNullOrEmpty(host) ||
-                port == 0 ||
-                string.IsNullOrEmpty(username)||
-                string.IsNullOrEmpty(password) ||
-                string.IsNullOrEmpty(from))
+            if (smtpSettings == null)
             {
                 throw new ArgumentNullException();
             }
-
-            var smtpClient = new SmtpClient(host)
+            
+            var from = smtpSettings["From"];
+            if (string.IsNullOrEmpty(from))
             {
-                Port = port,
-                Credentials = new NetworkCredential(username, password),
-                EnableSsl = true,
-            };
+                throw new ArgumentNullException();
+            }
 
             var mailMessage = new MailMessage
             {
@@ -78,8 +77,9 @@ namespace QualityProject.API.Controller
                 smtpClient.Send(mailMessage);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
