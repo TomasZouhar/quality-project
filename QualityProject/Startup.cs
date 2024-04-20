@@ -22,11 +22,10 @@ public static class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/File/CompareFiles", async (ICompareService cs) =>
-            {
-                var result = await cs.CompareFileAsync();
-                return Results.Content(result, "text/plain");
-            })
+        app.MapGet("/File/CompareFiles", async (ICompareService cs, IFileService fileService) => 
+                await FileHandler.CompareFiles(cs, fileService))
+            .WithName("CompareFiles")
+            .WithOpenApi()
             .RequireAuthorization("Admin");
 
         app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
@@ -45,8 +44,8 @@ public static class Startup
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs) 
-                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs))
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();

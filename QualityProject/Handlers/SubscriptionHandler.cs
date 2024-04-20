@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Net.Mail;
-using QualityProject.API.Controller;
+﻿using QualityProject.API.Controller;
 using QualityProject.BL.Services;
 using QualityProject.DAL.Models;
 
@@ -30,7 +28,7 @@ public static class SubscriptionHandler
         return result ? Results.Created($"/subscribe/{subscription.Id}", subscription) : Results.Conflict("This email address is already subscribed.");
     }
 
-    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs)
+    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs, IFileService fileService)
     {
         var subscriptions = (await subscriptionService.GetAllSubscriptionsAsync()).ToList();
         
@@ -40,7 +38,7 @@ public static class SubscriptionHandler
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
         
-        var resultBody = await cs.CompareFileHTMLAsync();
+        var resultBody = await cs.CompareFileHtmlAsync(fileService.GetFileFromDisk("referenceFile.csv"));
         
         if (string.IsNullOrEmpty(host) ||
             port == 0 ||
