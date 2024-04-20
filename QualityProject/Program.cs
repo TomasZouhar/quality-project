@@ -7,7 +7,6 @@ using QualityProject;
 using QualityProject.API.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
