@@ -38,7 +38,7 @@ public static class SubscriptionHandler
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
         
-        var resultBody = await cs.CompareFileHtmlAsync(fileService.GetFileFromDisk("referenceFile.csv"));
+        var resultBody = await cs.CompareFileHtmlAsync();
         
         if (string.IsNullOrEmpty(host) ||
             port == 0 ||
