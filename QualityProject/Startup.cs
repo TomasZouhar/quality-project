@@ -10,6 +10,7 @@ public static class Startup
 {
     public static void Run(WebApplication app)
     {
+        // Hello
         using (var scope = app.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
