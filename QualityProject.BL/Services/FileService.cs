@@ -6,4 +6,9 @@ public class FileService : IFileService
     {
         return File.ReadAllText(path);
     }
+    
+    public void SaveFileToDisk(string path, string content)
+    {
+        File.WriteAllText(path, content);
+    }
 }
