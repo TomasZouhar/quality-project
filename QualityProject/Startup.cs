@@ -21,13 +21,6 @@ public static class Startup
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapGet("/File/CompareFiles", async (ICompareService cs, IFileService fileService) => 
-                await FileHandler.CompareFiles(cs, fileService))
-            .WithName("CompareFiles")
-            .WithOpenApi()
-            .RequireAuthorization("Admin");
-
         app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
                 await SubscriptionHandler.RemoveSubscriptionAsync(email, subscriptionService))
             .WithName("RemoveSubscription")
@@ -49,9 +42,19 @@ public static class Startup
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
+        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService) => 
+                await FileHandler.CompareFiles(cs, fileService))
+            .WithName("CompareFiles")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
         app.MapPost("/file/saveReferenceFile", async (IDownloadService ds, IFileService fileService) =>
                 await FileHandler.DownloadAndSaveReferenceFile(ds, fileService))
             .WithName("SaveReferenceFile")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
+        app.MapPost("/file/getDummyReferenceFile", async (IFileService fileService) =>
+                await FileHandler.GetDummyReferenceFile())
+            .WithName("GetDummyReferenceFile")
             .WithOpenApi()
             .RequireAuthorization("Admin");
         app.Run();
