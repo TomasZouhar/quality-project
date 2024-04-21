@@ -49,6 +49,11 @@ public static class Startup
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
+        app.MapPost("/file/saveReferenceFile", async (IDownloadService ds, IFileService fileService) =>
+                await FileHandler.DownloadAndSaveReferenceFile(ds, fileService))
+            .WithName("SaveReferenceFile")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
         app.Run();
     }
 }
