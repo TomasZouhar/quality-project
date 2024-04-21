@@ -21,14 +21,6 @@ public static class Startup
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.MapGet("/File/CompareFiles", async (IFileService fileService) =>
-            {
-                var result = await fileService.CompareFileAsync();
-                return Results.Content(result, "text/plain");
-            })
-            .RequireAuthorization("Admin");
-
         app.MapDelete("/subscription/remove", async (string email, SubscriptionService subscriptionService) =>
                 await SubscriptionHandler.RemoveSubscriptionAsync(email, subscriptionService))
             .WithName("RemoveSubscription")
@@ -45,11 +37,26 @@ public static class Startup
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, IFileService fileService) 
-                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, fileService))
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
+        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService) => 
+                await FileHandler.CompareFiles(cs, fileService))
+            .WithName("CompareFiles")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
+        app.MapPost("/file/saveReferenceFile", async (IDownloadService ds, IFileService fileService) =>
+                await FileHandler.DownloadAndSaveReferenceFile(ds, fileService))
+            .WithName("SaveReferenceFile")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
+        app.MapPost("/file/getDummyReferenceFile", async (IFileService fileService) =>
+                await FileHandler.GetDummyReferenceFile())
+            .WithName("GetDummyReferenceFile")
+            .WithOpenApi()
+            .RequireAuthorization("Admin");
         app.Run();
     }
 }

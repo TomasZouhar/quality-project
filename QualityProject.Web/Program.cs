@@ -7,8 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddHttpClient<IDownloadService, DownloadService>();
+builder.Services.AddScoped<ICompareService, CompareService>();
+builder.Services.AddScoped<IDownloadService, DownloadService>();
+builder.Services.AddScoped<IFormatService, FormatService>();
 builder.Services.AddScoped<SubscriptionService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),

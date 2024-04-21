@@ -28,21 +28,33 @@ public static class SubscriptionHandler
         return result ? Results.Created($"/subscribe/{subscription.Id}", subscription) : Results.Conflict("This email address is already subscribed.");
     }
 
-    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, IFileService fileService)
+    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs, IFileService fileService)
     {
         var subscriptions = (await subscriptionService.GetAllSubscriptionsAsync()).ToList();
         
+        var smtpSettings = smtpConfiguration.GetSection("SMTP");
+        var host = smtpSettings["Host"];
+        var port = int.Parse(smtpSettings["Port"]!);
+        var username = smtpSettings["Username"];
+        var password = smtpSettings["Password"];
         
-        var resultBody = await fileService.CompareFileReducedAsync();
+        var resultBody = await cs.CompareFileHtmlAsync();
         
-        var sentEmails = subscriptions.Select(subscription => EmailController.SendEmail(smtpConfiguration, subscription.EmailAddress, resultBody)).Count(sent => sent);
+        if (string.IsNullOrEmpty(host) ||
+            port == 0 ||
+            string.IsNullOrEmpty(username)||
+            string.IsNullOrEmpty(password))
+        {
+            throw new ArgumentNullException();
+        }
+        
+        var smtpClient = new SmtpClientWrapper(host, port, username, password);
+
+        
+        var sentEmails = subscriptions.Select(subscription => EmailController.SendEmail(smtpConfiguration, subscription.EmailAddress, resultBody, smtpClient)).Count(sent => sent);
 
         var allEmailsSent = sentEmails == subscriptions.Count();
         return allEmailsSent ? Results.Ok() : 
             Results.Problem("Some emails were not sent", statusCode: StatusCodes.Status500InternalServerError);
     }
-    
-    
-
-    
 }

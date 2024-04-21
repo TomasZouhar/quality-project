@@ -7,7 +7,6 @@ using QualityProject;
 using QualityProject.API.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
@@ -47,6 +46,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddHttpClient<IDownloadService, DownloadService>();
+builder.Services.AddScoped<ICompareService, CompareService>();
+builder.Services.AddScoped<IDownloadService, DownloadService>();
+builder.Services.AddScoped<IFormatService, FormatService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<SubscriptionService>();
 
