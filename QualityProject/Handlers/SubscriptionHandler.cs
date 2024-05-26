@@ -28,7 +28,7 @@ public static class SubscriptionHandler
         return result ? Results.Created($"/subscribe/{subscription.Id}", subscription) : Results.Conflict("This email address is already subscribed.");
     }
 
-    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs, IFileService fileService)
+    public static async Task<IResult> SendEmailsToSubscribed(IConfiguration smtpConfiguration, ISubscriptionService subscriptionService, ICompareService cs, IFileService fileService, IDownloadService downloadService, IFormatService formatService)
     {
         var subscriptions = (await subscriptionService.GetAllSubscriptionsAsync()).ToList();
         
@@ -37,8 +37,16 @@ public static class SubscriptionHandler
         var port = int.Parse(smtpSettings["Port"]!);
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
+
+        var downloadContent = await downloadService.DownloadFileAsync();
+        var referenceContent = fileService.GetFileFromDisk("referenceFile.csv");
+
+        var comparedHolding = await cs.CompareFilesStringAsync(downloadContent, referenceContent);
+
+        var resultBody = formatService.FormatHTMLHoldingsTable(comparedHolding);
+
         
-        var resultBody = await cs.CompareFileHtmlAsync();
+        
         
         if (string.IsNullOrEmpty(host) ||
             port == 0 ||
