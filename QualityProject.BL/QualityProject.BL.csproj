@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="PuppeteerSharp" Version="18.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\QualityProject.DAL\QualityProject.DAL.csproj" />
   </ItemGroup>
 

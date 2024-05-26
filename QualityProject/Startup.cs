@@ -3,6 +3,9 @@ using QualityProject.API.Handlers;
 using QualityProject.DAL;
 using QualityProject.DAL.Models;
 using QualityProject.BL.Services;
+using QualityProject.API.Enums;
+using Microsoft.AspNetCore.Mvc;
+using FileResult = QualityProject.DAL.Models.FileResult;
 
 namespace QualityProject;
 
@@ -57,6 +60,36 @@ public static class Startup
             .WithName("GetDummyReferenceFile")
             .WithOpenApi()
             .RequireAuthorization("Admin");
+
+        app.MapGet("/file/stockChange", async (ICompareService cs,
+                                                IFileGenerationService fileGenerationService,
+                                                IFormatService formatService,
+                                                [FromQuery] FileType fileType) =>
+        {
+            FileResult fileResult = new();
+            switch (fileType)
+            {
+                case FileType.Csv:
+                    var csvContent = await cs.CompareFileAsync();
+                    fileResult = await fileGenerationService.GenerateCsvFileAsync(csvContent);
+                    break;
+                case FileType.Pdf:
+                    var pdfHtmlContent = await cs.CompareFileHtmlAsync();
+                    fileResult = await fileGenerationService.GeneratePdfFileAsync(pdfHtmlContent);
+                    break;
+                case FileType.Html:
+                    var htmlContent = await cs.CompareFileHtmlAsync();
+                    fileResult = await fileGenerationService.GenerateHtmlFileAsync(htmlContent);
+                    break;
+                default:
+                    return Results.BadRequest("Invalid file type.");
+            }
+            return Results.File(fileResult.FileContent, fileResult.ContentType, fileResult.FileName);
+        })
+        .RequireAuthorization("Admin")
+        .WithName("GetSubscriptionFile")
+        .WithOpenApi();
+
         app.Run();
     }
 }
