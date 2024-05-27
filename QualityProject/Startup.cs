@@ -64,21 +64,26 @@ public static class Startup
         app.MapGet("/file/stockChange", async (ICompareService cs,
                                                 IFileGenerationService fileGenerationService,
                                                 IFormatService formatService,
+                                                IDownloadService downloadService,
+                                                IFileService fileService,
                                                 [FromQuery] FileType fileType) =>
         {
             FileResult fileResult = new();
+            var referenceFile = fileService.GetFileFromDisk("referenceFile.csv");
+            var downloadedFile = await downloadService.DownloadFileAsync();
+            var difference = await cs.CompareFilesStringAsync(downloadedFile, referenceFile);
             switch (fileType)
             {
                 case FileType.Csv:
-                    var csvContent = await cs.CompareFileAsync();
+                    var csvContent = formatService.FormatHoldingsTable(difference);
                     fileResult = await fileGenerationService.GenerateCsvFileAsync(csvContent);
                     break;
                 case FileType.Pdf:
-                    var pdfHtmlContent = await cs.CompareFileHtmlAsync();
+                    var pdfHtmlContent = formatService.FormatHTMLHoldingsTable(difference);
                     fileResult = await fileGenerationService.GeneratePdfFileAsync(pdfHtmlContent);
                     break;
                 case FileType.Html:
-                    var htmlContent = await cs.CompareFileHtmlAsync();
+                    var htmlContent = formatService.FormatHTMLHoldingsTable(difference);
                     fileResult = await fileGenerationService.GenerateHtmlFileAsync(htmlContent);
                     break;
                 default:
