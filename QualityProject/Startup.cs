@@ -3,6 +3,9 @@ using QualityProject.API.Handlers;
 using QualityProject.DAL;
 using QualityProject.DAL.Models;
 using QualityProject.BL.Services;
+using QualityProject.API.Enums;
+using Microsoft.AspNetCore.Mvc;
+using FileResult = QualityProject.DAL.Models.FileResult;
 
 namespace QualityProject;
 
@@ -37,13 +40,13 @@ public static class Startup
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService) 
-                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService))
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService, IFormatService formatService, IDownloadService downloadService) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService, downloadService, formatService))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
-        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService) => 
-                await FileHandler.CompareFiles(cs, fileService))
+        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService, IFormatService formatService, IDownloadService downloadService) => 
+                await FileHandler.CompareFiles(cs, fileService, formatService, downloadService))
             .WithName("CompareFiles")
             .WithOpenApi()
             .RequireAuthorization("Admin");
@@ -57,6 +60,41 @@ public static class Startup
             .WithName("GetDummyReferenceFile")
             .WithOpenApi()
             .RequireAuthorization("Admin");
+
+        app.MapGet("/file/stockChange", async (ICompareService cs,
+                                                IFileGenerationService fileGenerationService,
+                                                IFormatService formatService,
+                                                IDownloadService downloadService,
+                                                IFileService fileService,
+                                                [FromQuery] FileType fileType) =>
+        {
+            FileResult fileResult = new();
+            var referenceFile = fileService.GetFileFromDisk("referenceFile.csv");
+            var downloadedFile = await downloadService.DownloadFileAsync();
+            var difference = await cs.CompareFilesStringAsync(downloadedFile, referenceFile);
+            switch (fileType)
+            {
+                case FileType.Csv:
+                    var csvContent = formatService.FormatHoldingsTable(difference);
+                    fileResult = await fileGenerationService.GenerateCsvFileAsync(csvContent);
+                    break;
+                case FileType.Pdf:
+                    var pdfHtmlContent = formatService.FormatHTMLHoldingsTable(difference);
+                    fileResult = await fileGenerationService.GeneratePdfFileAsync(pdfHtmlContent);
+                    break;
+                case FileType.Html:
+                    var htmlContent = formatService.FormatHTMLHoldingsTable(difference);
+                    fileResult = await fileGenerationService.GenerateHtmlFileAsync(htmlContent);
+                    break;
+                default:
+                    return Results.BadRequest("Invalid file type.");
+            }
+            return Results.File(fileResult.FileContent, fileResult.ContentType, fileResult.FileName);
+        })
+        .RequireAuthorization("Admin")
+        .WithName("GetSubscriptionFile")
+        .WithOpenApi();
+
         app.Run();
     }
 }

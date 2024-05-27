@@ -33,4 +33,23 @@ public class Holding
     {
         return $"{Date.ToShortDateString(),-10} | {Fund,-35} | {Company,-40} | {Ticker,-10} | {Cusip,-10} | {Shares,10:N0} | {MarketValueUsd,15} | {WeightPercentage,10}";
     }
+    
+    public override bool Equals(object obj)
+    {
+        if (obj == null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+
+        Holding other = (Holding)obj;
+        return Date == other.Date &&
+               Fund == other.Fund &&
+               Company == other.Company &&
+               Ticker == other.Ticker &&
+               Cusip == other.Cusip &&
+               Shares == other.Shares &&
+               MarketValueUsd == other.MarketValueUsd &&
+               WeightPercentage == other.WeightPercentage;
+    }
+    
 }
