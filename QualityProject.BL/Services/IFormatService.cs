@@ -17,12 +17,12 @@ public interface IFormatService
     /// </summary>
     /// <param name="subtractedHoldings"></param>
     /// <returns>StringBuilder containing reduced table of holding changes</returns>
-    StringBuilder FormatReducedHoldingsTable(List<Holding> subtractedHoldings);
+    string FormatReducedHoldingsTable(List<Holding> subtractedHoldings);
     
     /// <summary>
     /// Format holdings list into detailed table
     /// </summary>
     /// <param name="subtractedHoldings"></param>
     /// <returns>StringBuilder containing detailed table of holding changes</returns>
-    StringBuilder FormatHoldingsTable(List<Holding> subtractedHoldings);
+    string FormatHoldingsTable(List<Holding> subtractedHoldings);
 }

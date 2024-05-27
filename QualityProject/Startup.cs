@@ -37,13 +37,13 @@ public static class Startup
             .WithName("GetSubscriptions")
             .WithOpenApi();
 
-        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService) 
-                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService))
+        app.MapPost("/subscription/send", async (IConfiguration configuration, SubscriptionService subscriptionService, ICompareService cs, IFileService fileService, IFormatService formatService, IDownloadService downloadService) 
+                => await SubscriptionHandler.SendEmailsToSubscribed(configuration, subscriptionService, cs, fileService, downloadService, formatService))
             .RequireAuthorization("Admin")
             .WithName("SendSubscription")
             .WithOpenApi();
-        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService) => 
-                await FileHandler.CompareFiles(cs, fileService))
+        app.MapGet("/file/compareFiles", async (ICompareService cs, IFileService fileService, IFormatService formatService, IDownloadService downloadService) => 
+                await FileHandler.CompareFiles(cs, fileService, formatService, downloadService))
             .WithName("CompareFiles")
             .WithOpenApi()
             .RequireAuthorization("Admin");

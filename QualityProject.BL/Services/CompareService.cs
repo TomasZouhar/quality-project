@@ -2,25 +2,20 @@ using System.Globalization;
 using Microsoft.VisualBasic.FileIO;
 using QualityProject.DAL.Models;
 
-namespace QualityProject.BL.Services;
-
-public class CompareService : ICompareService
+namespace QualityProject.BL.Services
 {
-    private readonly IFormatService _formatService;
-    private readonly IDownloadService _downloadService;
-    private readonly IFileService _fileService;
-    private string Path = "referenceFile.csv";
-    
-    public CompareService(IDownloadService downloadService, IFormatService formatService, IFileService fileService)
+    public class CompareService : ICompareService
     {
-        _downloadService = downloadService;
-        _formatService = formatService;
-        _fileService = fileService;
-    }
 
-    private static List<Holding> ParseCsvString(string csvData)
-    {
-        var holdings = new List<Holding>();
+        private string Path = "referenceFile.csv";
+
+        public CompareService()
+        {
+        }
+
+        private static List<Holding> ParseCsvString(string csvData)
+        {
+            var holdings = new List<Holding>();
             using var reader = new StringReader(csvData);
             using var parser = new TextFieldParser(reader)
             {
@@ -54,40 +49,23 @@ public class CompareService : ICompareService
 
             return holdings;
         }
-        private async Task<T> CompareFilesAsync<T>(string fileContent1, string fileContent2, Func<List<Holding>, T> formatMethod)
-        {
-            var oldHoldings = ParseCsvString(fileContent1).OrderBy(h => h.Company).ToList();
-            var newHoldings = ParseCsvString(fileContent2).OrderBy(h => h.Company).ToList();
-            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => newHolding - oldHolding).ToList();
-            subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
-            var result = formatMethod(subtractedHoldings);
-            return await Task.FromResult(result);
-        }
 
-
-        public async Task<string> CompareFileAsync()
+        public async Task<List<Holding>> CompareFilesStringAsync(string downloadedFileContent, string referenceFileContent)
         {
-            var downloadedFileContent = await _downloadService.DownloadFileAsync();
-            var referenceFileContent = _fileService.GetFileFromDisk(Path);
-            var result =
-                await CompareFilesAsync(referenceFileContent, downloadedFileContent, _formatService.FormatHoldingsTable);
-            return result.ToString();
-        }
-
-        public async Task<string> CompareFileReducedAsync()
-        {
-            var downloadedFileContent = await _downloadService.DownloadFileAsync();
-            var referenceFileContent = _fileService.GetFileFromDisk(Path);
-            var result = await CompareFilesAsync(referenceFileContent, downloadedFileContent, _formatService.FormatReducedHoldingsTable);
-            return result.ToString();
-        }
-        
-        public async Task<string> CompareFileHtmlAsync()
-        {
-            var downloadedFileContent = await _downloadService.DownloadFileAsync();
-            var referenceFileContent = _fileService.GetFileFromDisk(Path);
-            var result = await CompareFilesAsync(referenceFileContent, downloadedFileContent, _formatService.FormatHTMLHoldingsTable);
-            return result;
-
+            var oldHoldings = ParseCsvString(referenceFileContent).OrderBy(h => h.Company).ToList();
+            var newHoldings = ParseCsvString(downloadedFileContent).OrderBy(h => h.Company).ToList();
+            var subtractedHoldings = oldHoldings.Zip(newHoldings, (oldHolding, newHolding) => new Holding
+            {
+                Date = newHolding.Date,
+                Fund = newHolding.Fund,
+                Company = newHolding.Company,
+                Ticker = newHolding.Ticker,
+                Cusip = newHolding.Cusip,
+                Shares = newHolding.Shares - oldHolding.Shares,
+                MarketValueUsd = newHolding.MarketValueUsd - oldHolding.MarketValueUsd,
+                WeightPercentage = newHolding.WeightPercentage - oldHolding.WeightPercentage
+            }).ToList();
+            return subtractedHoldings = subtractedHoldings.OrderByDescending(h => h.WeightPercentage).ToList();
         }
     }
+}
