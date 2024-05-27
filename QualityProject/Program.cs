@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication;
 using QualityProject;
 using QualityProject.API.Swagger;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication("BasicAuthentication")
@@ -51,7 +52,13 @@ builder.Services.AddScoped<ICompareService, CompareService>();
 builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.AddScoped<IFormatService, FormatService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IFileGenerationService, FileGenerationService>();
 builder.Services.AddScoped<SubscriptionService>();
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
