@@ -1,5 +1,4 @@
-﻿using QualityProject.BL.Exceptions;
-using QualityProject.BL.Services;
+﻿using QualityProject.BL.Services;
 
 namespace QualityProject.API.Handlers;
 
@@ -15,21 +14,13 @@ public static class FileHandler
     /// <returns>Comparison result</returns>
     public static async Task<IResult> CompareFiles(ICompareService cs, IFileService fileService, IFormatService formatService, IDownloadService downloadService)
     {
-        try
-        {
-            var downloadContent = await downloadService.DownloadFileAsync();
-            var referenceContent = fileService.GetFileFromDisk("referenceFile.csv");
+        var downloadContent = await downloadService.DownloadFileAsync();
+        var referenceContent = fileService.GetFileFromDisk("referenceFile.csv");
 
-            var comparedHolding = await cs.CompareFilesStringAsync(downloadContent, referenceContent);
+        var comparedHolding = await cs.CompareFilesStringAsync(downloadContent, referenceContent);
         
-            var result = formatService.FormatHoldingsTable(comparedHolding);
-            return Results.Content(result, "text/plain");
-        }
-        catch (CustomException e)
-        {
-            return Results.Problem(e.Message, statusCode: e.ErrorCode);
-        }
-        
+        var result = formatService.FormatHoldingsTable(comparedHolding);
+        return Results.Content(result, "text/plain");
     }
     
     /// <summary>

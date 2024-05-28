@@ -9,4 +9,6 @@ public interface ICompareService
     /// </summary>
     /// <returns>The comparison result as a formatted string.</returns>
     Task<List<Holding>> CompareFilesStringAsync(string downloadedFileContent, string referenceFileContent);
+
+
 }
